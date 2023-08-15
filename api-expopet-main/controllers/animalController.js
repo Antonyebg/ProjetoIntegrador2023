@@ -1,10 +1,20 @@
+const fs = require('fs');
+const cloudinary = require('../upload/local-asset.js'); //
+const multer = require('multer');
 const Animal = require('../models/Animal');
 
 // Controller methods
 const AnimalController = {
 	getAllAnimals: async (req, res) => {
 		try {
-			const animals = await Animal.findAll();
+			const animals = await Animal.findAll({
+				include: [
+					{
+						association: 'user',
+						attributes: { exclude: ['senha'] },
+					},
+				],
+			});
 			res.json(animals);
 		} catch (error) {
 			console.error(error);
@@ -29,7 +39,11 @@ const AnimalController = {
 
 	createAnimal: async (req, res) => {
 		try {
-			const { nome, cordosolhos, cor, porte, sexo, bairro, imagem } = req.body;
+			const { nome, cordosolhos, cor, porte, sexo, bairro } = req.body;
+			imagem = req.file;
+			const cloudinaryResponse = await cloudinary.uploader.upload(imagem.path, options = { folder: "pets" });
+
+			// Create the new animal with the Cloudinary image URL and public_id
 			const newAnimal = await Animal.create({
 				nome,
 				cordosolhos,
@@ -37,8 +51,11 @@ const AnimalController = {
 				porte,
 				sexo,
 				bairro,
-				imagem,
+				user_id: req.user.id,
+				imagem: cloudinaryResponse.secure_url, // Update the imagem field with Cloudinary URL
 			});
+
+			fs.unlinkSync(imagem.path);
 			res.json(newAnimal);
 		} catch (error) {
 			console.error(error);

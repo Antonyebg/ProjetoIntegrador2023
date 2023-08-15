@@ -10,7 +10,13 @@ const cor = ref('')
 const porte = ref('')
 const sexo = ref('')
 const bairro = ref('')
+const image = ref(null)
 const emit = defineEmits(['showToast'])
+
+const handleFileChange = (event) => {
+	image.value = event.target.files[0];
+};
+
 
 const bairroOptions = [
 	{ label: 'Selecione', value: '' },
@@ -49,31 +55,40 @@ const validarFormulario = () => {
 }
 
 const postAnimal = async () => {
-	if (!validarFormulario()) return
-	const response = await http.post('http://localhost:3000/animals',
-		JSON.stringify({
-			nome: nome.value,
-			cordosolhos: corDosOlhos.value,
-			cor: cor.value,
-			porte: porte.value,
-			sexo: sexo.value,
-			bairro: bairro.value
-		})
-	)
-	if (response.status === 200) {
-		emit('showToast', {
-			type: 'success', message: 'Cadastro realizado com sucesso!'
-		})
-		router.push('/')
-	} else {
-		showToast.value = true
+	if (!validarFormulario()) return;
+
+	const formData = new FormData();
+	formData.append('nome', nome.value);
+	formData.append('cordosolhos', corDosOlhos.value);
+	formData.append('cor', cor.value);
+	formData.append('porte', porte.value);
+	formData.append('sexo', sexo.value);
+	formData.append('bairro', bairro.value);
+	formData.append('imagem', image.value, image.value.name);
+	try {
+		const response = await http.post('http://localhost:3000/animals', formData, {
+			headers: {
+				'Content-Type': 'multipart/form-data'
+			}
+		});
+
+		if (response.status === 200) {
+			emit('showToast', {
+				type: 'success', message: 'Cadastro realizado com sucesso!'
+			});
+			router.push('/');
+		} else {
+			showToast.value = true;
+		}
+	} catch (error) {
+		showToast.value = true;
 	}
-}
+};
 
 </script>
 <template>
 	<h1 class="text-2xl flex justify-center mb-8">Cadastro de Animal</h1>
-	<form class="bg-base-300 rounded-lg shadow-md max-w-md mx-auto p-6">
+	<form enctype="multipart/form-data" class="bg-base-300 rounded-lg shadow-md max-w-md mx-auto p-6">
 		<label class="label">
 			<span class="label-text">Nome</span>
 		</label>
@@ -125,7 +140,7 @@ const postAnimal = async () => {
 		<label class="label">
 			<span class="label-text">Imagem do animal</span>
 		</label>
-		<input type="file" class="file-input file-input-sm w-full max-w-xs mb-4" />
+		<input type="file" name="imagem" class="file-input file-input-sm w-full max-w-xs mb-4" @change="handleFileChange" />
 		<div @click="postAnimal" class="btn btn-primary">Cadastrar</div>
 		<div @click="router.push('/')" class="flex items-center mt-8 cursor-pointer">
 			<v-icon name="md-arrowback" class="mr-4"></v-icon>

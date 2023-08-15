@@ -24,7 +24,7 @@ const logout = () => {
 </script>
 
 <template>
-  <div>
+  <div class="wrapper">
     <div class="navbar bg-base-100">
       <div class="flex-1">
         <div @click="router.push('/')" class="ml-4 btn btn-ghost">
@@ -48,17 +48,22 @@ const logout = () => {
         <span v-if="auth.user" class="mr-3">Logado como: {{ auth.user.nome }}</span>
         <a @click="logout" class="btn btn-ghost normal-case">Sair</a>
       </div>
+    </div>
+    <RouterView class="body-height" @showToast="toast_store.toggleShow" />
+    <Transition enter-active-class="duration-300 ease-out" enter-from-class="transform opacity-0 -translate-y-4"
+      enter-to-class="opacity-100" leave-active-class="duration-200 ease-in" leave-from-class="opacity-100"
+      leave-to-class="transform opacity-0">
+      <Toast v-if="toast_store.showToast" @close="toast_store.showToast = false" message="Eita como funciona" />
+    </Transition>
   </div>
-  <RouterView @showToast="toast_store.toggleShow" />
-  <Transition
-    enter-active-class="duration-300 ease-out"
-    enter-from-class="transform opacity-0 -translate-y-4"
-    enter-to-class="opacity-100"
-    leave-active-class="duration-200 ease-in"
-    leave-from-class="opacity-100"
-    leave-to-class="transform opacity-0"
-  >
-    <Toast v-if="toast_store.showToast" @close="toast_store.showToast = false" message="Eita como funciona" />
-  </Transition>
-</div>
 </template>
+
+<style>
+.wrapper {
+  height: 100vh;
+  min-height: 100vh;
+}
+.body-height {
+  height: calc(100vh - 4rem);
+}
+</style>

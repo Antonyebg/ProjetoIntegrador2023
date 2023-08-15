@@ -4,7 +4,8 @@
 		<label class="block mb-2" for="usuario">Email:</label>
 		<input v-model="email" class="input input-bordered px-3 py-2 mb-4 w-full" type="text" id="usuario" name="usuario">
 		<label class="block mb-2" for="senha">Senha:</label>
-		<input v-model="senha" class="input input-bordered px-3 py-2 mb-4 w-full" :type="mostrarSenha ? 'text' : 'password'" id="senha" name="senha">
+		<input v-model="senha" class="input input-bordered px-3 py-2 mb-4 w-full" :type="mostrarSenha ? 'text' : 'password'"
+			id="senha" name="senha">
 		<input v-model="mostrarSenha" class="mb-4" type="checkbox"> Mostrar senha<br>
 		<button @click="postLogin" class="btn btn-primary">Entrar</button>
 		<div class="mt-4 text-sm">
@@ -37,11 +38,11 @@ const validarFormulario = () => {
 	return true
 }
 
-async function postLogin  () {
+async function postLogin() {
 	if (!validarFormulario()) return;
 	let response;
 	try {
-		response = await http.post('/auth/login', 
+		response = await http.post('/auth/login',
 			JSON.stringify({
 				email: email.value,
 				senha: senha.value
@@ -64,3 +65,9 @@ async function postLogin  () {
 
 
 </script>
+
+<style>
+.body-height {
+	height: auto !important;
+}
+</style>

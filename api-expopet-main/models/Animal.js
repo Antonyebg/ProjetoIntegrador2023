@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const User = require('./User');
 
 const Animal = sequelize.define('Animal', {
 	nome: {
@@ -30,6 +31,12 @@ const Animal = sequelize.define('Animal', {
 		type: DataTypes.STRING,
 		allowNull: true,
 	},
+	user_id: {
+		type: DataTypes.INTEGER,
+		allowNull: false,
+	},
 });
+
+Animal.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
 module.exports = Animal;

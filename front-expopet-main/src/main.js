@@ -8,6 +8,7 @@ import router from './router'
 import { OhVueIcon, addIcons } from "oh-vue-icons";
 import * as MdIcons from "oh-vue-icons/icons/md";
 import { useAuth } from "./stores/auth.js";
+import Cookies from 'js-cookie';
 
 const Md = Object.values({ ...MdIcons });
 addIcons(...Md);
@@ -17,7 +18,8 @@ app.component('v-icon', OhVueIcon);
 app.use(createPinia())
 app.use(router)
 
-if (localStorage.getItem('token')) {
+const token = Cookies.get('token');
+if (token) {
 	(async () => {
 		const auth = useAuth();
 		try {
