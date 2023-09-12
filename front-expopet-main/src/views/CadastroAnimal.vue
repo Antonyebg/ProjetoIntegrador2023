@@ -12,9 +12,24 @@ const sexo = ref('')
 const bairro = ref('')
 const image = ref(null)
 const emit = defineEmits(['showToast'])
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 10MB in bytes
 
 const handleFileChange = (event) => {
-	image.value = event.target.files[0];
+	const selectedFile = event.target.files[0];
+
+	if (selectedFile) {
+		if (selectedFile.size > MAX_FILE_SIZE) {
+			emit('showToast', {
+				type: 'error',
+				message: 'O arquivo é muito grande. (max 5MB).',
+			});
+
+			event.target.value = null;
+			image.value = null;
+		} else {
+			image.value = selectedFile;
+		}
+	}
 };
 
 
@@ -45,7 +60,7 @@ const bairroOptions = [
 ]
 
 const validarFormulario = () => {
-	if (!nome.value || !corDosOlhos.value || !cor.value || !porte.value || !sexo.value || !bairro.value) {
+	if (!nome.value || !corDosOlhos.value || !cor.value || !porte.value || !sexo.value || !bairro.value || !image.value) {
 		emit('showToast', {
 			type: 'info', message: 'Por favor, preencha todos os campos'
 		})
@@ -92,7 +107,7 @@ const postAnimal = async () => {
 		<label class="label">
 			<span class="label-text">Nome</span>
 		</label>
-		<input v-model="nome" type="textl" placeholder="Nome" class="input input-bordered w-full" />
+		<input maxlength="50" v-model="nome" type="textl" placeholder="Nome" class="input input-bordered w-full" />
 		<label class="label">
 			<span class="label-text">Cor dos olhos</span>
 		</label>

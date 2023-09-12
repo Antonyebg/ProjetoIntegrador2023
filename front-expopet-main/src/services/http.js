@@ -1,12 +1,24 @@
 import axios from 'axios';
-import Cookies from 'js-cookie'; // Import js-cookie library
+import Cookies from 'js-cookie';
 
 const axiosInstance = axios.create({
   baseURL: 'http://localhost:3000',
   headers: {
     'Content-type': 'application/json',
-    'Authorization': `Bearer ${Cookies.get('token') || ''}` // Get token from cookies
-  }
+  },
 });
+
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = Cookies.get('token');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 export default axiosInstance;

@@ -49,6 +49,12 @@ async function postLogin() {
 			})
 		);
 	} catch (error) {
+		if (error.response.status === 401) {
+			emit('showToast', {
+				type: 'error', message: 'Senha incorreta ou email não encontrado'
+			})
+			return;
+		}
 		emit('showToast', {
 			type: 'error', message: 'Erro ao realizar login'
 		})

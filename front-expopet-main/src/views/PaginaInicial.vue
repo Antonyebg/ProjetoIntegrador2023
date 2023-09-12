@@ -1,8 +1,10 @@
 <script setup>
 import { useRouter } from 'vue-router'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import http from '@/services/http.js';
 
+const animaisPerPage = 10;
+const currentPage = ref(1);
 const animais = ref([]);
 
 onMounted(async () => {
@@ -10,6 +12,22 @@ onMounted(async () => {
   animais.value = await response.data;
 });
 
+const startIdx = computed(() => (currentPage.value - 1) * animaisPerPage);
+const endIdx = computed(() => currentPage.value * animaisPerPage);
+
+const displayedAnimais = computed(() => animais.value.slice(startIdx.value, endIdx.value));
+
+const goToPreviousPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+  }
+};
+
+const goToNextPage = () => {
+  if (endIdx.value < animais.value.length) {
+    currentPage.value++;
+  }
+};
 </script>
 
 <template>
@@ -18,7 +36,8 @@ onMounted(async () => {
       <h1 class="text-2xl flex justify-center mb-8">Animais para adoção</h1>
       <div class="flex justify-center">
         <div class="grid grid-cols-5 gap-12">
-          <div v-for="animal in animais" class="card card-compact w-60 bg-base-300 text-sm shadow-xl">
+          <div v-for="animal in displayedAnimais" :key="animal.id"
+            class="card card-compact w-60 bg-base-300 text-sm shadow-xl">
             <figure class="image-container">
               <img :src="animal.imagem" alt="Shoes" class="object-cover" />
             </figure>
@@ -32,7 +51,8 @@ onMounted(async () => {
                 <li>Sexo: {{ animal.sexo }}</li>
               </ul>
               <div class="card-actions mt-4">
-                <a :href="'https://wa.me/' + animal.user.telefone" target="_blank" class="btn btn-primary btn-sm">Adotar</a>
+                <a :href="'https://wa.me/' + animal.user.telefone" target="_blank"
+                  class="btn btn-primary btn-sm">Adotar</a>
               </div>
             </div>
           </div>
@@ -40,9 +60,9 @@ onMounted(async () => {
       </div>
     </div>
     <div class="join flex justify-center my-6">
-      <button class="join-item btn">«</button>
-      <button class="join-item btn">Page 1</button>
-      <button class="join-item btn">»</button>
+      <button @click="goToPreviousPage" class="join-item btn" :disabled="currentPage === 1">«</button>
+      <button class="join-item btn">Página {{ currentPage }}</button>
+      <button @click="goToNextPage" class="join-item btn" :disabled="endIdx >= animais.length">»</button>
     </div>
   </div>
 </template>
@@ -53,7 +73,6 @@ onMounted(async () => {
   align-items: center;
   width: 100%;
   height: 200px;
-  /* Adjust the height as needed */
 }
 
 .image-container img {

@@ -5,7 +5,7 @@ const User = require('../models/User');
 
 const login = async (req, res) => {
   const { email, senha } = req.body;
-  try {
+    try {
     const user = await User.findOne({ where: { email } });
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or senha' });

@@ -31,6 +31,11 @@ const UserController = {
   createUser: async (req, res) => {
     const { nome, email, telefone, senha } = req.body;
     try {
+      const existingUser = await User.findOne({ where: { email } });
+      if (existingUser) {
+        return res.status(400).json({ error: 'Email already exists' });
+      }
+  
       let senhaHash = await bcrypt.hash(senha, 10);
       const newUser = await User.create({ nome, email, telefone, senha: senhaHash });
       res.status(201).json(newUser);
@@ -39,7 +44,6 @@ const UserController = {
       res.status(500).json({ error: 'Internal server error' });
     }
   },
-
   updateUser: async (req, res) => {
     const { id } = req.params;
     const { nome, email, telefone, senha } = req.body;
