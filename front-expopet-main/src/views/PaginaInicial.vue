@@ -35,9 +35,9 @@ const goToNextPage = () => {
     <div>
       <h1 class="text-2xl flex justify-center mb-8">Animais para adoção</h1>
       <div class="flex justify-center">
-        <div class="grid grid-cols-5 gap-12">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-12">
           <div v-for="animal in displayedAnimais" :key="animal.id"
-            class="card card-compact w-60 bg-base-300 text-sm shadow-xl">
+            class="card card-compact md:w-60 bg-base-300 text-sm shadow-xl">
             <figure class="image-container">
               <img :src="animal.imagem" alt="Shoes" class="object-cover" />
             </figure>

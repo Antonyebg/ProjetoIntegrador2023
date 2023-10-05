@@ -58,35 +58,26 @@ const postCadastro = async () => {
         message: 'Cadastro realizado com sucesso!',
       });
       router.push('/login');
-    } else {
-      showToast.value = true;
     }
   } catch (error) {
-    if (error.response.status === 400) {
-      emit('showToast', {
-        type: 'error',
-        message: 'Email já cadastrado',
-      });
-      return;
-    }
     emit('showToast', {
       type: 'error',
-      message: 'Erro ao realizar cadastro',
+      message: error.response.data.error,
     });
-    return;
-  };
-}
+  }
+};
 </script>
 
 <template>
   <h1 class="text-center text-2xl font-bold mb-6">Cadastro de Usuário</h1>
   <form class="bg-base-300 rounded-lg shadow-md max-w-md mx-auto p-6">
     <label class="block font-bold mb-2" for="nome">Nome:</label>
-    <input maxlength="50" v-model="nome" class="input input-bordered px-3 py-2 mb-4 w-full" type="text" id="nome" name="nome" required>
+    <input maxlength="50" v-model="nome" class="input input-bordered px-3 py-2 mb-4 w-full" type="text" id="nome"
+      name="nome" required>
 
     <label class="block font-bold mb-2" for="email">E-mail:</label>
-    <input maxlength="50" v-model="email" class="input input-bordered px-3 py-2 mb-4 w-full" type="email" id="email" name="email"
-      required>
+    <input maxlength="50" v-model="email" class="input input-bordered px-3 py-2 mb-4 w-full" type="email" id="email"
+      name="email" required>
 
     <label class="block font-bold mb-2" for="telefone">Telefone:</label>
     <input maxlength="15" v-model="telefone" class="input input-bordered px-3 py-2 mb-4 w-full" type="tel"

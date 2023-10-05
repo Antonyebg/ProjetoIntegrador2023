@@ -30,18 +30,23 @@ const UserController = {
 
   createUser: async (req, res) => {
     const { nome, email, telefone, senha } = req.body;
+    if (senha.length < 6) {
+      return res.status(400).json({ error: 'A senha precisa ter no mínimo 6 caracteres.' });
+    }
+
     try {
       const existingUser = await User.findOne({ where: { email } });
       if (existingUser) {
-        return res.status(400).json({ error: 'Email already exists' });
+        return res.status(400).json({ error: 'Email já cadastrado' });
       }
-  
       let senhaHash = await bcrypt.hash(senha, 10);
       const newUser = await User.create({ nome, email, telefone, senha: senhaHash });
       res.status(201).json(newUser);
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal server error' });
+      if (error.name === 'SequelizeUniqueConstraintError') {
+        res.status(400).json({ error: 'Email já cadastrado' });
+        res.status(500).json({ error: 'Erro ao realizar cadastro' });
+      }
     }
   },
   updateUser: async (req, res) => {
