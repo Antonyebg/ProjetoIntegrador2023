@@ -2,15 +2,20 @@
 import { useRouter } from 'vue-router'
 import { ref, onMounted, computed } from 'vue'
 import http from '@/services/http.js';
-
+import { useAuth } from '@/stores/auth';
+const auth = useAuth()
 const animaisPerPage = 10;
 const currentPage = ref(1);
 const animais = ref([]);
 
 onMounted(async () => {
+  await getAnimais();
+});
+
+const getAnimais = async () => {
   const response = await http.get('/animals');
   animais.value = await response.data;
-});
+};
 
 const startIdx = computed(() => (currentPage.value - 1) * animaisPerPage);
 const endIdx = computed(() => currentPage.value * animaisPerPage);
@@ -26,6 +31,13 @@ const goToPreviousPage = () => {
 const goToNextPage = () => {
   if (endIdx.value < animais.value.length) {
     currentPage.value++;
+  }
+};
+
+const deleteAnimal = async (id) => {
+  const response = await http.delete(`/animals/${id}`);
+  if (response.status === 204) {
+    await getAnimais();
   }
 };
 </script>
@@ -50,9 +62,10 @@ const goToNextPage = () => {
                 <li>Bairro onde foi encontrado: {{ animal.bairro }}</li>
                 <li>Sexo: {{ animal.sexo }}</li>
               </ul>
-              <div class="card-actions mt-4">
+              <div class="card-actions items-center mt-4">
                 <a :href="'https://wa.me/' + animal.user.telefone" target="_blank"
                   class="btn btn-primary btn-sm">Adotar</a>
+                <v-icon v-if="auth.user.admin" name="md-delete" class="text-red-500 cursor-pointer"  @click="deleteAnimal(animal.id)"></v-icon>
               </div>
             </div>
           </div>

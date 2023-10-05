@@ -9,6 +9,7 @@ module.exports = {
       // admin
       senha: '$2a$10$jCMd5OFd5YvImlcxZMRr0eLAP4lnb5qUxCCkPdf7k5kvFZy7Esl9a',
       telefone: '00000000000',
+      admin: true,
       createdAt: new Date(),
       updatedAt: new Date()
     }]);

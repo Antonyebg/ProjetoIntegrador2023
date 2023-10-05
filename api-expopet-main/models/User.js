@@ -14,6 +14,11 @@ const User = sequelize.define('User', {
       isEmail: true,
     },
   },
+  admin: {
+    type: DataTypes.BOOLEAN,
+    allowNull: true,
+    defaultValue: false,
+  },
   telefone: {
     type: DataTypes.STRING,
     allowNull: false,
