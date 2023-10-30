@@ -7,7 +7,28 @@ const Animal = require('../models/Animal');
 const AnimalController = {
 	getAllAnimals: async (req, res) => {
 		try {
+			const { cor, porte, corDosOlhos, bairro, sexo } = req.query; 
+
+			const whereClause = {};
+
+			if (cor) {
+				whereClause.cor = cor;
+			}
+			if (porte) {
+				whereClause.porte = porte;
+			}
+			if (corDosOlhos) {
+				whereClause.cordosolhos = corDosOlhos;
+			}
+			if (bairro) {
+				whereClause.bairro = bairro;
+			}
+			if (sexo) {
+				whereClause.sexo = sexo;
+			}
+
 			const animals = await Animal.findAll({
+				where: whereClause, 
 				include: [
 					{
 						association: 'user',
@@ -15,6 +36,7 @@ const AnimalController = {
 					},
 				],
 			});
+
 			res.json(animals);
 		} catch (error) {
 			console.error(error);
