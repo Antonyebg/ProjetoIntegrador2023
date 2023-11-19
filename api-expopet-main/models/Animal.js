@@ -35,6 +35,11 @@ const Animal = sequelize.define('Animal', {
 		type: DataTypes.INTEGER,
 		allowNull: false,
 	},
+	tem_dono: {
+		type: DataTypes.BOOLEAN,
+		defaultValue: false,
+		allowNull: false,
+	},
 });
 
 Animal.belongsTo(User, { foreignKey: 'user_id', as: 'user' });

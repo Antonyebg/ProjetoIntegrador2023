@@ -25,7 +25,7 @@ const logout = () => {
 
 <template>
   <div class="wrapper">
-    <div class="navbar bg-base-100">
+    <div class="navbar bg-base-300">
       <div class="flex-1">
         <div @click="router.push('/')" class="text-primary ml-4 btn btn-ghost">
           <v-icon name="md-pets" class="mt-1"></v-icon>

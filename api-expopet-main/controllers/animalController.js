@@ -7,7 +7,7 @@ const Animal = require('../models/Animal');
 const AnimalController = {
 	getAllAnimals: async (req, res) => {
 		try {
-			const { cor, porte, corDosOlhos, bairro, sexo } = req.query; 
+			const { cor, porte, corDosOlhos, bairro, sexo, temDono } = req.query;
 
 			const whereClause = {};
 
@@ -27,8 +27,12 @@ const AnimalController = {
 				whereClause.sexo = sexo;
 			}
 
+			if (temDono) {
+				whereClause.tem_dono = temDono === 'true';
+			}
+
 			const animals = await Animal.findAll({
-				where: whereClause, 
+				where: whereClause,
 				include: [
 					{
 						association: 'user',
@@ -61,11 +65,13 @@ const AnimalController = {
 
 	createAnimal: async (req, res) => {
 		try {
-			const { nome, cordosolhos, cor, porte, sexo, bairro } = req.body;
-			imagem = req.file;
-			const cloudinaryResponse = await cloudinary.uploader.upload(imagem.path, options = { folder: "pets" });
+			const { nome, cordosolhos, cor, porte, sexo, bairro, tem_dono } = req.body;
+			const imagem = req.file;
 
-			// Create the new animal with the Cloudinary image URL and public_id
+			const cloudinaryResponse = await cloudinary.uploader.upload(imagem.path, {
+				folder: "pets"
+			});
+
 			const newAnimal = await Animal.create({
 				nome,
 				cordosolhos,
@@ -73,8 +79,9 @@ const AnimalController = {
 				porte,
 				sexo,
 				bairro,
+				tem_dono, 
 				user_id: req.user.id,
-				imagem: cloudinaryResponse.secure_url, // Update the imagem field with Cloudinary URL
+				imagem: cloudinaryResponse.secure_url,
 			});
 
 			fs.unlinkSync(imagem.path);

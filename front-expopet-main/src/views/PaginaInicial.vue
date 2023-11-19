@@ -13,7 +13,8 @@ const filtros = ref({
   porte: '',
   corDosOlhos: '',
   bairro: '',
-  sexo: ''
+  sexo: '',
+  temDono: ''
 })
 
 const limparFiltros = () => {
@@ -22,6 +23,7 @@ const limparFiltros = () => {
   filtros.value.corDosOlhos = ''
   filtros.value.bairro = ''
   filtros.value.sexo = ''
+  filtros.value.temDono = ''
 }
 
 watch(filtros, async (filtros) => {
@@ -49,6 +51,9 @@ const getAnimais = async (filtros) => {
     }
     if (filtros.sexo) {
       queryString += `sexo=${filtros.sexo}&`;
+    }
+    if (filtros.temDono) {
+      queryString += `temDono=${filtros.temDono}&`;
     }
   }
   const response = await http.get(`/animals${queryString}`);
@@ -112,7 +117,7 @@ const bairroOptions = [
 <template>
   <div class="flex flex-col justify-between">
     <div>
-      <h1 class="text-2xl flex justify-center mb-8 text-white">Animais para adoção</h1>
+      <h1 class="text-2xl flex justify-center mt-4 text-white">Animais para adoção</h1>
       <div class="flex justify-center mb-8">
         <!-- <h1 class="text-md flex justify-center text-yellow-300">Filtros</h1> -->
         <!-- <h1 @click="limparFiltros" class="text-md flex justify-center cursor-pointer text-white">Limpar Filtros</h1> -->
@@ -124,7 +129,6 @@ const bairroOptions = [
             <option value="">Todos</option>
             <option value="marrom">Marrom</option>
             <option value="branco">Branco</option>
-            <option value="preto">Preto</option>
             <option value="dourado">Dourado</option>
             <option value="preto">Preto</option>
           </select>
@@ -151,10 +155,8 @@ const bairroOptions = [
         <div class="ml-10">
           Bairro:
           <select v-model="filtros.bairro" class="form-select ml-1">
-            <option value="">Todos</option>
             <option v-for="bairro in bairroOptions" :key="bairro.value" :value="bairro.value">{{ bairro.label }}</option>
           </select>
-
         </div>
         <div class="ml-10">
           Sexo:
@@ -164,29 +166,44 @@ const bairroOptions = [
             <option value="femea">Fêmea</option>
           </select>
         </div>
-        <h1 @click="limparFiltros" class="text-md flex justify-center cursor-pointer ml-14 text-red-300">Limpar Filtros</h1>
+        <div class="ml-10">
+          Aparenta ter dono:
+          <select v-model="filtros.temDono" class="form-select ml-1">
+            <option value="">Todos</option>
+            <option value="true">Sim</option>
+            <option value="false">Não</option>
+          </select>
+        </div>
+        <h1 @click="limparFiltros" class="text-md flex justify-center cursor-pointer ml-14 text-red-300">Limpar Filtros
+        </h1>
       </div>
       <div class="flex justify-center">
         <div class="grid grid-cols-1 md:grid-cols-5 gap-12">
           <div v-for="animal in displayedAnimais" :key="animal.id"
-            class="card card-compact md:w-60 bg-base-300 text-sm shadow-xl">
+            class="card card-compact md:w-72 bg-base-300 shadow-xl border">
             <figure class="image-container">
               <img :src="animal.imagem" alt="Shoes" class="object-cover" />
             </figure>
             <div class="card-body items-center text-center">
-              <h2 class="card-title">{{ animal.nome }}</h2>
+              <h2 class="card-title"><span class="text-white">{{ animal.nome }}</span></h2>
               <ul class="text-left">
-                <li>Cor predominante: {{ animal.cor }}</li>
-                <li>Porte: {{ animal.porte }}</li>
-                <li>Cor dos olhos: {{ animal.cordosolhos }}</li>
-                <li>Bairro onde foi encontrado: {{ animal.bairro }}</li>
-                <li>Sexo: {{ animal.sexo }}</li>
+                <li>Cor predominante: <span class="text-white">{{ animal.cor }}</span></li>
+                <li>Porte: <span class="text-white">{{ animal.porte }}</span></li>
+                <li>Cor dos olhos: <span class="text-white">{{ animal.cordosolhos }}</span></li>
+                <li>Bairro onde foi encontrado: <span class="text-white">{{ animal.bairro }}</span></li>
+                <li>Sexo: <span class="text-white">{{ animal.sexo }}</span></li>
+                <div v-if="animal.tem_dono" class="flex align-middle my-2">
+                  <li class="text-green-300 mr-1">Animal aparenta ter dono</li>
+                  <v-icon name="md-person"></v-icon>
+                </div>
               </ul>
-              <div class="card-actions items-center mt-4">
-                <a :href="'https://wa.me/' + animal.user.telefone" target="_blank"
-                  class="btn btn-primary btn-sm">Adotar</a>
-                <v-icon v-if="auth.user.admin" name="md-delete" class="text-red-500 cursor-pointer"
-                  @click="deleteAnimal(animal.id)"></v-icon>
+              <div class="card-actions items-center mt-4 h-full justify-end flex flex-col">
+                <div>
+                  <a :href="'https://wa.me/' + animal.user.telefone" target="_blank"
+                    class="btn btn-primary btn-sm">Adotar</a>
+                  <v-icon v-if="auth.user.admin" name="md-delete" class="text-red-500 cursor-pointer"
+                    @click="deleteAnimal(animal.id)"></v-icon>
+                </div>
               </div>
             </div>
           </div>
