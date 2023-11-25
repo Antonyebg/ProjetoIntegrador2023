@@ -27,11 +27,11 @@ const logout = () => {
   <div class="wrapper">
     <div class="navbar bg-base-300">
       <div class="flex-1">
-        <div @click="router.push('/')" class="text-primary ml-4 btn btn-ghost">
-          <v-icon name="md-pets" class="mt-1"></v-icon>
+        <div @click="router.push('/')" class="text-accent ml-4 btn btn-ghost">
+          <v-icon name="md-pets" scale="1.1" class="my-auto"></v-icon>
           <a class="normal-case text-xl">ExpoPet</a>
         </div>
-        <div @click="router.push('cadastro-animal')" class="btn btn-ghost normal-case text-white">Cadastrar Animal</div>
+        <div @click="router.push('cadastro-animal')" class="btn btn-ghost normal-case text-lg font-medium text-white">Cadastrar Animal</div>
       </div>
       <div class="text-sm mr-4">
         <!-- <label class="swap swap-rotate md:mr-4 invisible md:visible">
@@ -63,6 +63,7 @@ const logout = () => {
   height: 100vh;
   min-height: 100vh;
 }
+
 .body-height {
   height: calc(100vh - 4rem);
 }

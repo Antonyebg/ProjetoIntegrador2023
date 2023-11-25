@@ -1,6 +1,6 @@
 <script setup>
 import { useRouter } from 'vue-router'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import http from '@/services/http.js';
 
 const router = useRouter()
@@ -12,6 +12,8 @@ const sexo = ref('')
 const bairro = ref('')
 const image = ref(null)
 const temDono = ref(false)
+const animalPerdido = ref(false)
+const paraAdocao = ref(false)
 const emit = defineEmits(['showToast'])
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 10MB in bytes
 
@@ -68,8 +70,7 @@ const validarFormulario = () => {
 		!porte.value ||
 		!sexo.value ||
 		!bairro.value ||
-		!image.value ||
-		(temDono.value === undefined && temDono.value === null)
+		!image.value
 	) {
 		emit('showToast', {
 			type: 'info',
@@ -80,6 +81,26 @@ const validarFormulario = () => {
 	return true;
 };
 
+watch(temDono, (value) => {
+	if (value) {
+		animalPerdido.value = false;
+		paraAdocao.value = false;
+	}
+});
+
+watch(animalPerdido, (value) => {
+	if (value) {
+		temDono.value = false;
+		paraAdocao.value = false;
+	}
+});
+
+watch(paraAdocao, (value) => {
+	if (value) {
+		temDono.value = false;
+		animalPerdido.value = false;
+	}
+});
 
 const postAnimal = async () => {
 	if (!validarFormulario()) return;
@@ -92,8 +113,9 @@ const postAnimal = async () => {
 	formData.append('sexo', sexo.value);
 	formData.append('bairro', bairro.value);
 	formData.append('imagem', image.value, image.value.name);
-	formData.append('tem_dono', temDono.value); // Add this line
-
+	formData.append('tem_dono', temDono.value); 
+	formData.append('animal_perdido', animalPerdido.value); 
+	formData.append('para_adocao', paraAdocao.value); 
 	try {
 		const response = await http.post(
 			'http://localhost:3000/animals',
@@ -122,7 +144,7 @@ const postAnimal = async () => {
 
 </script>
 <template>
-	<h1 class="text-2xl flex justify-center mb-8">Cadastro de Animal</h1>
+	<h1 class="text-2xl flex justify-center mb-4 mt-4 text-white">Cadastro de Animal</h1>
 	<form enctype="multipart/form-data" class="bg-base-300 rounded-lg shadow-md max-w-md mx-auto p-6">
 		<label class="label">
 			<span class="label-text">Nome</span>
@@ -172,13 +194,27 @@ const postAnimal = async () => {
 		<select v-model="bairro" class="select select-bordered w-full" id="bairro" name="bairro" required>
 			<option v-for="option in bairroOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
 		</select>
-		<label class="label">
+		<label class="label mt-4">
 			<span class="label-text">Imagem do animal</span>
 		</label>
-		<input type="file" name="imagem" class="file-input file-input-sm w-full max-w-xs mb-4" @change="handleFileChange" />
+		<input type="file" name="imagem" class="file-input file-input-sm w-full max-w-xs" @change="handleFileChange" />
 		<label class="flex my-6">
-			<span class="label-text mr-6">Animal aparenta ter dono?</span>
+			<div class="tooltip tooltip-info" data-tip="Marque esta opção se você encontrou este animal na rua e ele aparenta ter dono">
+				<span class="label-text mr-6 underline cursor-pointer">Animal aparenta ter dono?</span>
+			</div>
 			<input type="checkbox" v-model="temDono" class="checkbox" />
+		</label>
+		<label class="flex my-6">
+			<div class="tooltip tooltip-info" data-tip="Marque esta opção se você perdeu este animal e deseja encontrá-lo">
+				<span class="label-text mr-6 underline cursor-pointer">Animal perdido?</span>
+			</div>
+			<input type="checkbox" v-model="animalPerdido" class="checkbox" />
+		</label>
+		<label class="flex my-6">
+			<div class="tooltip tooltip-info" data-tip="Marque esta opção se você está doando este animal">
+				<span class="label-text mr-6 underline cursor-pointer">Animal para adoção?</span>
+			</div>
+			<input type="checkbox" v-model="paraAdocao" class="checkbox" />
 		</label>
 		<div @click="postAnimal" class="btn btn-primary">Cadastrar</div>
 		<div @click="router.push('/')" class="flex items-center mt-8 cursor-pointer">

@@ -7,7 +7,7 @@ const Animal = require('../models/Animal');
 const AnimalController = {
 	getAllAnimals: async (req, res) => {
 		try {
-			const { cor, porte, corDosOlhos, bairro, sexo, temDono } = req.query;
+			const { cor, porte, corDosOlhos, bairro, sexo, temDono, animalPerdido, paraAdocao } = req.query;
 
 			const whereClause = {};
 
@@ -29,6 +29,14 @@ const AnimalController = {
 
 			if (temDono) {
 				whereClause.tem_dono = temDono === 'true';
+			}
+
+			if (animalPerdido) {
+				whereClause.animal_perdido = animalPerdido === 'true';
+			}
+
+			if (paraAdocao) {
+				whereClause.para_adocao = paraAdocao === 'true';
 			}
 
 			const animals = await Animal.findAll({
@@ -65,7 +73,7 @@ const AnimalController = {
 
 	createAnimal: async (req, res) => {
 		try {
-			const { nome, cordosolhos, cor, porte, sexo, bairro, tem_dono } = req.body;
+			const { nome, cordosolhos, cor, porte, sexo, bairro, tem_dono, animal_perdido, para_adocao } = req.body;
 			const imagem = req.file;
 
 			const cloudinaryResponse = await cloudinary.uploader.upload(imagem.path, {
@@ -80,6 +88,8 @@ const AnimalController = {
 				sexo,
 				bairro,
 				tem_dono, 
+				animal_perdido,
+				para_adocao,
 				user_id: req.user.id,
 				imagem: cloudinaryResponse.secure_url,
 			});

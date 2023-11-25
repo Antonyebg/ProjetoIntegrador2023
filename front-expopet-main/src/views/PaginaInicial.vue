@@ -8,13 +8,24 @@ const animaisPerPage = 10;
 const currentPage = ref(1);
 const animais = ref([]);
 
+const filtrosVazios = computed(() => {
+  return !filtros.value.cor && !filtros.value.porte && !filtros.value.corDosOlhos && !filtros.value.bairro && !filtros.value.sexo && !filtros.value.situacao
+})
+
+const textoAcao = (animal) => {
+  if (animal.para_adocao) {
+    return 'Adotar'
+  }
+  return 'Entrar em contato'
+}
+
 const filtros = ref({
   cor: '',
   porte: '',
   corDosOlhos: '',
   bairro: '',
   sexo: '',
-  temDono: ''
+  situacao: ''
 })
 
 const limparFiltros = () => {
@@ -23,7 +34,7 @@ const limparFiltros = () => {
   filtros.value.corDosOlhos = ''
   filtros.value.bairro = ''
   filtros.value.sexo = ''
-  filtros.value.temDono = ''
+  filtros.value.situacao = ''
 }
 
 watch(filtros, async (filtros) => {
@@ -52,8 +63,14 @@ const getAnimais = async (filtros) => {
     if (filtros.sexo) {
       queryString += `sexo=${filtros.sexo}&`;
     }
-    if (filtros.temDono) {
-      queryString += `temDono=${filtros.temDono}&`;
+    if (filtros.situacao) {
+      if (filtros.situacao === 'temDono') {
+        queryString += `temDono=true&`;
+      } else if (filtros.situacao === 'animalPerdido') {
+        queryString += `animalPerdido=true&`;
+      } else if (filtros.situacao === 'paraAdocao') {
+        queryString += `paraAdocao=true&`;
+      }
     }
   }
   const response = await http.get(`/animals${queryString}`);
@@ -116,69 +133,83 @@ const bairroOptions = [
 
 <template>
   <div class="flex flex-col justify-between">
-    <div>
-      <h1 class="text-2xl flex justify-center mt-4 text-white">Animais para adoção</h1>
-      <div class="flex justify-center mb-8">
-        <!-- <h1 class="text-md flex justify-center text-yellow-300">Filtros</h1> -->
-        <!-- <h1 @click="limparFiltros" class="text-md flex justify-center cursor-pointer text-white">Limpar Filtros</h1> -->
+    <div class="pt-4">
+      <div class="mb-6 px-4 md:px-40">
+        <div class="collapse collapse-arrow bg-base-300">
+          <input type="checkbox" />
+          <div class="collapse-title text-lg text-white">
+            <div class="flex gap-2">
+              <div>Filtros</div>
+              <div class="my-auto">
+                <v-icon class="my-auto" name="md-search"></v-icon>
+              </div>
+            </div>
+          </div>
+          <div class="collapse-content">
+            <div class="flex flex-col md:flex-row gap-6 justify-center text-white">
+              <div>
+                Cor:
+                <select v-model="filtros.cor" class="mt-1 form-select w-full select select-bordered ml-1">
+                  <option value="">Todos</option>
+                  <option value="marrom">Marrom</option>
+                  <option value="branco">Branco</option>
+                  <option value="dourado">Dourado</option>
+                  <option value="preto">Preto</option>
+                </select>
+              </div>
+              <div>
+                Porte:
+                <select v-model="filtros.porte" class="mt-1 form-select w-full select select-bordered ml-1">
+                  <option value="">Todos</option>
+                  <option value="pequeno">Pequeno</option>
+                  <option value="medio">Médio</option>
+                  <option value="grande">Grande</option>
+                </select>
+              </div>
+              <div>
+                Cor dos olhos:
+                <select v-model="filtros.corDosOlhos" class="mt-1 form-select w-full select select-bordered ml-1">
+                  <option class="text-bold" value="">Todos</option>
+                  <option value="castanho">Castanho</option>
+                  <option value="azul">Azul</option>
+                  <option value="verde">Verde</option>
+                  <option value="naoidentificado">Não identificado</option>
+                </select>
+              </div>
+              <div>
+                Bairro:
+                <select v-model="filtros.bairro" class="mt-1 form-select w-full select select-bordered ml-1">
+                  <option v-for="bairro in bairroOptions" :key="bairro.value" :value="bairro.value">{{ bairro.label }}
+                  </option>
+                </select>
+              </div>
+              <div>
+                Sexo:
+                <select v-model="filtros.sexo" class="mt-1 form-select w-full select select-bordered ml-1">
+                  <option value="">Todos</option>
+                  <option value="macho">Macho</option>
+                  <option value="femea">Fêmea</option>
+                </select>
+              </div>
+              <div>
+                Situação:
+                <select v-model="filtros.situacao" class="mt-1 form-select w-full select select-bordered ml-1">
+                  <option value="">Todos</option>
+                  <option value="temDono">Animal aparenta ter dono</option>
+                  <option value="animalPerdido">Animal perdido</option>
+                  <option value="paraAdocao">Animal para adoção</option>
+                </select>
+              </div>
+            </div>
+            <div @click="limparFiltros" class="text-md flex justify-center mt-4 cursor-pointer text-red-300">
+              <span v-show="!filtrosVazios">Limpar Filtros</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="flex justify-center mb-10 text-white">
-        <div class="ml-10">
-          Cor:
-          <select v-model="filtros.cor" class="form-select ml-1">
-            <option value="">Todos</option>
-            <option value="marrom">Marrom</option>
-            <option value="branco">Branco</option>
-            <option value="dourado">Dourado</option>
-            <option value="preto">Preto</option>
-          </select>
-        </div>
-        <div class="ml-10">
-          Porte:
-          <select v-model="filtros.porte" class="form-select ml-1">
-            <option value="">Todos</option>
-            <option value="pequeno">Pequeno</option>
-            <option value="medio">Médio</option>
-            <option value="grande">Grande</option>
-          </select>
-        </div>
-        <div class="ml-10">
-          Cor dos olhos:
-          <select v-model="filtros.corDosOlhos" class="form-select ml-1">
-            <option class="text-bold" value="">Todos</option>
-            <option value="castanho">Castanho</option>
-            <option value="azul">Azul</option>
-            <option value="verde">Verde</option>
-            <option value="naoidentificado">Não identificado</option>
-          </select>
-        </div>
-        <div class="ml-10">
-          Bairro:
-          <select v-model="filtros.bairro" class="form-select ml-1">
-            <option v-for="bairro in bairroOptions" :key="bairro.value" :value="bairro.value">{{ bairro.label }}</option>
-          </select>
-        </div>
-        <div class="ml-10">
-          Sexo:
-          <select v-model="filtros.sexo" class="form-select ml-1">
-            <option value="">Todos</option>
-            <option value="macho">Macho</option>
-            <option value="femea">Fêmea</option>
-          </select>
-        </div>
-        <div class="ml-10">
-          Aparenta ter dono:
-          <select v-model="filtros.temDono" class="form-select ml-1">
-            <option value="">Todos</option>
-            <option value="true">Sim</option>
-            <option value="false">Não</option>
-          </select>
-        </div>
-        <h1 @click="limparFiltros" class="text-md flex justify-center cursor-pointer ml-14 text-red-300">Limpar Filtros
-        </h1>
-      </div>
+      <div class="text-2xl flex justify-center mt-4 mb-6 text-white">Quadro de animais</div>
       <div class="flex justify-center">
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-12">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-12 px-4 md:px-0">
           <div v-for="animal in displayedAnimais" :key="animal.id"
             class="card card-compact md:w-72 bg-base-300 shadow-xl border">
             <figure class="image-container">
@@ -192,17 +223,35 @@ const bairroOptions = [
                 <li>Cor dos olhos: <span class="text-white">{{ animal.cordosolhos }}</span></li>
                 <li>Bairro onde foi encontrado: <span class="text-white">{{ animal.bairro }}</span></li>
                 <li>Sexo: <span class="text-white">{{ animal.sexo }}</span></li>
-                <div v-if="animal.tem_dono" class="flex align-middle my-2">
-                  <li class="text-green-300 mr-1">Animal aparenta ter dono</li>
-                  <v-icon name="md-person"></v-icon>
+                <div v-if="animal.tem_dono" class="flex text-lg my-2 text-yellow-300">
+                  <div class="mr-1">Animal aparenta ter dono</div>
+                  <div class="my-auto">
+                    <v-icon scale="1.2" name="md-person"></v-icon>
+                  </div>
+                </div>
+                <div v-if="animal.animal_perdido" class="flex text-lg align-middle my-2 text-red-300">
+                  <div class="mr-1">Animal perdido, ajuda a encontrá-lo</div>
+                  <div class="my-auto">
+                    <v-icon scale="1.2" name="md-warning"></v-icon>
+                  </div>
+                </div>
+                <div v-if="animal.para_adocao" class="flex text-lg my-2 text-green-300">
+                  <div class="mr-1">Animal disponível para adoção</div>
+                  <div class="my-auto">
+                    <v-icon scale="1.2" name="md-favorite"></v-icon>
+                  </div>
                 </div>
               </ul>
-              <div class="card-actions items-center mt-4 h-full justify-end flex flex-col">
-                <div>
-                  <a :href="'https://wa.me/' + animal.user.telefone" target="_blank"
-                    class="btn btn-primary btn-sm">Adotar</a>
-                  <v-icon v-if="auth.user.admin" name="md-delete" class="text-red-500 cursor-pointer"
-                    @click="deleteAnimal(animal.id)"></v-icon>
+              <div class="card-actions w-full items-center mt-4 h-full justify-end flex flex-col">
+                <div class="w-full flex">
+                  <div class="w-full">
+                    <a :href="'https://wa.me/' + animal.user.telefone" target="_blank"
+                      class="btn w-full btn-primary btn-sm">{{ textoAcao(animal) }}</a>
+                  </div>
+                  <div  v-if="auth.user.admin" class=" ml-2 my-auto">
+                    <v-icon name="md-delete" class="text-red-500 my-auto cursor-pointer"
+                      @click="deleteAnimal(animal.id)"></v-icon>
+                  </div>
                 </div>
               </div>
             </div>
