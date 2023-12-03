@@ -29,6 +29,22 @@ const router = createRouter({
       meta: {
         auth:true
       }
+    },
+    {
+      path: '/cadastro-patrocinador',
+      name: 'cadastro-patrocinador',
+      component: () => import('../views/CadastroPatrocinador.vue'),
+      meta: {
+        auth:true
+      }
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('../views/PainelAdmin.vue'),
+      meta: {
+        auth:true
+      }
     }
   ]
 })

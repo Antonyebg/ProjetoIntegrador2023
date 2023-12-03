@@ -3,10 +3,22 @@ import { useRouter } from 'vue-router'
 import { ref, onMounted, computed, watch } from 'vue'
 import http from '@/services/http.js';
 import { useAuth } from '@/stores/auth';
+import { Carousel, Navigation, Pagination, Slide } from 'vue3-carousel'
+import 'vue3-carousel/dist/carousel.css'
+
 const auth = useAuth()
 const animaisPerPage = 10;
 const currentPage = ref(1);
 const animais = ref([]);
+const banners = ref([]);
+
+const slides = [
+  { id: '1', title: 'Vue 3 Introduction', content: 'VueJS is a library' },
+  { id: '2', title: 'Vue 3 Components', content: 'Know the components' },
+  { id: '3', title: 'Vue 3 Conditional', content: 'Rendering Conditionally' },
+  { id: '4', title: 'Vue 3 Reactivity', content: 'VueJS is Reactive' },
+  { id: '5', title: 'Vue 3 Compute', content: 'VueJS uses computed properties' },
+]
 
 const filtrosVazios = computed(() => {
   return !filtros.value.cor && !filtros.value.porte && !filtros.value.corDosOlhos && !filtros.value.bairro && !filtros.value.sexo && !filtros.value.situacao
@@ -41,8 +53,14 @@ watch(filtros, async (filtros) => {
   await getAnimais(filtros)
 }, { deep: true })
 
+const getBanners = async () => {
+  const response = await http.get('/banners');
+  banners.value = await response.data;
+};
+
 onMounted(async () => {
   await getAnimais();
+  await getBanners();
 });
 
 const getAnimais = async (filtros) => {
@@ -132,6 +150,16 @@ const bairroOptions = [
 
 
 <template>
+  <Carousel v-if="banners.length > 0" :autoplay="2000" :items-to-show="4" :wrap-around="true">
+    <Slide v-for="slide in banners" :key="slide">
+      <div class="carousel__item h-28 flex items-center justify-center">
+        <img :src="slide.imagem" :alt="slide.nome" />
+      </div>
+    </Slide>
+    <template #addons>
+      <Navigation />
+    </template>
+  </Carousel>
   <div class="flex flex-col justify-between">
     <div class="pt-4">
       <div class="mb-6 px-4 md:px-40">
@@ -248,7 +276,7 @@ const bairroOptions = [
                     <a :href="'https://wa.me/' + animal.user.telefone" target="_blank"
                       class="btn w-full btn-primary btn-sm">{{ textoAcao(animal) }}</a>
                   </div>
-                  <div  v-if="auth.user.admin" class=" ml-2 my-auto">
+                  <div v-if="auth.user?.admin" class=" ml-2 my-auto">
                     <v-icon name="md-delete" class="text-red-500 my-auto cursor-pointer"
                       @click="deleteAnimal(animal.id)"></v-icon>
                   </div>
@@ -259,7 +287,7 @@ const bairroOptions = [
         </div>
       </div>
     </div>
-    <div class="join flex justify-center my-6">
+    <div v-if="animais.length > 10" class="join flex justify-center my-6">
       <button @click="goToPreviousPage" class="join-item btn" :disabled="currentPage === 1">«</button>
       <button class="join-item btn">Página {{ currentPage }}</button>
       <button @click="goToNextPage" class="join-item btn" :disabled="endIdx >= animais.length">»</button>

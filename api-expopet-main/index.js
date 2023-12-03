@@ -5,6 +5,7 @@ const sequelize = require('./config/database');
 const userRoutes = require('./routes/userRoutes');
 const animalRoutes = require('./routes/animalRoutes');
 const authRoutes = require('./routes/authRoutes');
+const bannerRoutes = require('./routes/bannerRoutes');
 
 const app = express();
 const port = 3000;
@@ -17,6 +18,7 @@ app.use(cors());
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/animals', animalRoutes);
+app.use('/banners', bannerRoutes);
 
 // Sync models with the database and start the server
 sequelize

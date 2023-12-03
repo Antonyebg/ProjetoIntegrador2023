@@ -7,7 +7,8 @@ import Cookies from 'js-cookie';
 export const useAuth = defineStore('auth', () => {
 
     const token = ref(Cookies.get('token'));
-    const user = ref(Cookies.get('user'));
+    const userString = Cookies.get('user');
+    const user = ref(userString ? JSON.parse(userString) : null);
     const isAuth = ref(false);
 
     function setToken(tokenValue) {

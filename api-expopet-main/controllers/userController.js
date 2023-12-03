@@ -76,7 +76,7 @@ const UserController = {
       const user = await User.findByPk(id);
       if (user) {
         await user.destroy();
-        res.json({ message: 'User deleted successfully' });
+        res.sendStatus(204);
       } else {
         res.status(404).json({ error: 'User not found' });
       }
